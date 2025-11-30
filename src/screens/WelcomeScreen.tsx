@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { Phone, Lock } from 'lucide-react-native';
 import { login } from '../services/auth';
 import { useNavigation } from '@react-navigation/native';
@@ -26,9 +26,14 @@ export function WelcomeScreen() {
 
   return (
     <View style={styles.container}>
+      <Image
+        source={require('../../assets/logo.png')}
+        style={styles.logo}
+        resizeMode="contain"
+      />
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Phone size={80} color="#34C759" strokeWidth={1.5} />
+          <Phone size={80} color="#F72B73" strokeWidth={1.5} />
         </View>
 
         <Text style={styles.title}>SignalWire Dialer</Text>
@@ -61,6 +66,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
   },
+  logo: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    width: 120,
+    height: 40,
+  },
   content: {
     flex: 1,
     justifyContent: 'center',
@@ -87,7 +99,7 @@ const styles = StyleSheet.create({
     fontWeight: '300',
   },
   loginButton: {
-    backgroundColor: '#34C759',
+    backgroundColor: '#F72B73',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

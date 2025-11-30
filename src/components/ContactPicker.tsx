@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { X, Search, UserRound } from 'lucide-react-native';
 import { Contact } from 'react-native-contacts';
 
@@ -19,17 +19,28 @@ interface ContactPickerProps {
   onClose: () => void;
 }
 
-export function ContactPicker({ visible, contacts, onSelect, onClose }: ContactPickerProps) {
+export function ContactPicker({
+  visible,
+  contacts,
+  onSelect,
+  onClose,
+}: ContactPickerProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredContacts = contacts.filter((contact) => {
-    const name = [contact.givenName, contact.familyName].filter(Boolean).join(' ').toLowerCase();
+  const filteredContacts = contacts.filter(contact => {
+    const name = [contact.givenName, contact.familyName]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
     const phone = contact.phoneNumbers?.[0]?.number || '';
-    return name.includes(searchQuery.toLowerCase()) || phone.includes(searchQuery);
+    return (
+      name.includes(searchQuery.toLowerCase()) || phone.includes(searchQuery)
+    );
   });
 
   const renderContact = ({ item }: { item: Contact }) => {
-    const name = [item.givenName, item.familyName].filter(Boolean).join(' ') || 'Unknown';
+    const name =
+      [item.givenName, item.familyName].filter(Boolean).join(' ') || 'Unknown';
     const phoneNumber = item.phoneNumbers?.[0]?.number || 'No phone number';
 
     return (
@@ -89,7 +100,7 @@ export function ContactPicker({ visible, contacts, onSelect, onClose }: ContactP
           <FlatList
             data={filteredContacts}
             renderItem={renderContact}
-            keyExtractor={(item) => item.recordID}
+            keyExtractor={item => item.recordID}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
           />

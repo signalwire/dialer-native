@@ -14,7 +14,7 @@ type CallRouteProp = RouteProp<RootStackParamList, 'Call'>;
 export function CallScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<CallRouteProp>();
-  const { phoneNumber } = route.params;
+  const { phoneNumber, contactName } = route.params;
 
   const {
     callState,
@@ -53,19 +53,34 @@ export function CallScreen() {
           <Phone size={48} color="#FFFFFF" strokeWidth={1.5} />
         </View>
 
-        <Text style={styles.phoneNumber}>
-          {formatPhoneNumber(phoneNumber || '+9779845862777')}
-        </Text>
+        {contactName ? (
+          <>
+            <Text style={styles.contactName}>{contactName}</Text>
+            <Text style={styles.phoneNumberSmall}>
+              {formatPhoneNumber(phoneNumber || '+9779845862777')}
+            </Text>
+          </>
+        ) : (
+          <Text style={styles.phoneNumber}>
+            {formatPhoneNumber(phoneNumber || '+9779845862777')}
+          </Text>
+        )}
 
         <View style={styles.statusContainer}>
           {callState === 'connecting' && (
             <>
-              <ActivityIndicator size="small" color="#34C759" style={styles.loader} />
+              <ActivityIndicator size="small" color="#F72B73" style={styles.loader} />
               <Text style={styles.statusText}>Connecting...</Text>
             </>
           )}
           {callState === 'connected' && (
             <Text style={styles.statusText}>{formatDuration(callDuration)}</Text>
+          )}
+          {callState === 'hanging_up' && (
+            <>
+              <ActivityIndicator size="small" color="#FF3B30" style={styles.loader} />
+              <Text style={styles.statusText}>Hanging up...</Text>
+            </>
           )}
           {callState === 'ended' && (
             <Text style={styles.statusText}>Call Ended</Text>
@@ -136,6 +151,20 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 12,
     letterSpacing: 1,
+  },
+  contactName: {
+    fontSize: 32,
+    fontWeight: '400',
+    color: '#FFFFFF',
+    marginBottom: 8,
+    letterSpacing: 0.5,
+  },
+  phoneNumberSmall: {
+    fontSize: 18,
+    fontWeight: '300',
+    color: '#8E8E93',
+    marginBottom: 12,
+    letterSpacing: 0.5,
   },
   statusContainer: {
     flexDirection: 'row',

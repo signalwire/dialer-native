@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import InCallManager from 'react-native-incall-manager';
 import { useClient } from '../contexts/ClientContext';
 
-export type CallState = 'idle' | 'connecting' | 'connected' | 'ended';
+export type CallState = 'idle' | 'connecting' | 'connected' | 'hanging_up' | 'ended';
 
 interface UseCallSessionParams {
   phoneNumber: string;
@@ -16,6 +16,8 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
+  const [availableAudioDevices, setAvailableAudioDevices] = useState<string[]>([]);
+  const [selectedAudioDevice, setSelectedAudioDevice] = useState<string>('SPEAKER_PHONE');
 
   const callSessionRef = useRef<any>(null);
   const isInitializingRef = useRef(false);
@@ -76,10 +78,21 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
       session.on('call.joined', () => {
         console.log('[CALL] Call joined');
         setCallState('connected');
+
         // Start call duration timer
         durationIntervalRef.current = setInterval(() => {
           setCallDuration((prev) => prev + 1);
         }, 1000);
+
+        // Check for available audio devices
+        InCallManager.checkRecordPermission().then(() => {
+          // Get available audio devices
+          const devices = ['EARPIECE', 'SPEAKER_PHONE'];
+
+          // Note: InCallManager doesn't provide a direct way to list devices
+          // We'll assume common devices. Bluetooth will be auto-detected by the system
+          setAvailableAudioDevices(devices);
+        });
       });
 
       session.on('call.ended', () => {
@@ -109,25 +122,58 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
 
   const hangup = useCallback(() => {
     if (callSessionRef.current) {
-      setCallState('ended');
-      cleanup();
-      onCallEnded?.();
+      setCallState('hanging_up');
+      try {
+        callSessionRef.current.hangup();
+        // Don't cleanup here - wait for destroy event
+      } catch (error) {
+        console.error('Error initiating hangup:', error);
+        // If hangup fails, cleanup immediately
+        setCallState('ended');
+        cleanup();
+        onCallEnded?.();
+      }
     }
   }, [cleanup, onCallEnded]);
 
   const toggleMute = useCallback(() => {
-    if (!callSessionRef.current) return;
+    if (!callSessionRef.current || callState !== 'connected') return;
 
     const newMutedState = !isMuted;
     InCallManager.setMicrophoneMute(newMutedState);
     setIsMuted(newMutedState);
-  }, [isMuted]);
+  }, [isMuted, callState]);
 
   const toggleSpeaker = useCallback(() => {
+    if (callState !== 'connected') return;
+
     const newSpeakerState = !isSpeaker;
     InCallManager.setForceSpeakerphoneOn(newSpeakerState);
     setIsSpeaker(newSpeakerState);
-  }, [isSpeaker]);
+  }, [isSpeaker, callState]);
+
+  const selectAudioDevice = useCallback((device: string) => {
+    if (callState !== 'connected') return;
+
+    setSelectedAudioDevice(device);
+
+    // Handle different device types
+    switch (device) {
+      case 'SPEAKER_PHONE':
+        InCallManager.setForceSpeakerphoneOn(true);
+        setIsSpeaker(true);
+        break;
+      case 'EARPIECE':
+        InCallManager.setForceSpeakerphoneOn(false);
+        setIsSpeaker(false);
+        break;
+      case 'BLUETOOTH':
+      case 'WIRED_HEADSET':
+        InCallManager.setForceSpeakerphoneOn(false);
+        setIsSpeaker(false);
+        break;
+    }
+  }, [callState]);
 
   useEffect(() => {
     return () => {
@@ -140,9 +186,12 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
     callDuration,
     isMuted,
     isSpeaker,
+    availableAudioDevices,
+    selectedAudioDevice,
     startCall,
     hangup,
     toggleMute,
     toggleSpeaker,
+    selectAudioDevice,
   };
 }

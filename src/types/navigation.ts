@@ -3,6 +3,7 @@ export type RootStackParamList = {
   Dialer: undefined;
   Call: {
     phoneNumber?: string;
+    contactName?: string;
   };
 };
 
