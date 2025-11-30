@@ -74,6 +74,7 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
       hasInitializedRef.current = true;
 
       session.on('call.joined', () => {
+        console.log('[CALL] Call joined');
         setCallState('connected');
         // Start call duration timer
         durationIntervalRef.current = setInterval(() => {
@@ -82,6 +83,14 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
       });
 
       session.on('call.ended', () => {
+        console.log('[CALL] Call ended');
+        setCallState('ended');
+        cleanup();
+        onCallEnded?.();
+      });
+
+      session.on('destroy', () => {
+        console.log('[CALL] Call destroyed (other party hung up)');
         setCallState('ended');
         cleanup();
         onCallEnded?.();
