@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX } from 'lucide-react-native';
+import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX, Grid3x3 } from 'lucide-react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
@@ -15,6 +16,7 @@ export function CallScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<CallRouteProp>();
   const { phoneNumber, contactName } = route.params;
+  const [showDialpad, setShowDialpad] = useState(false);
 
   const {
     callState,
@@ -25,6 +27,7 @@ export function CallScreen() {
     hangup,
     toggleMute,
     toggleSpeaker,
+    sendDigits,
   } = useCallSession({
     phoneNumber: phoneNumber || '+9779845862777',
     onCallEnded: () => {
@@ -50,6 +53,21 @@ export function CallScreen() {
   const handleHangup = () => {
     hangup();
   };
+
+  const handleDigitPress = (digit: string) => {
+    ReactNativeHapticFeedback.trigger('impactLight', {
+      enableVibrateFallback: false,
+      ignoreAndroidSystemSettings: false,
+    });
+    sendDigits(digit);
+  };
+
+  const dialpadButtons = [
+    ['1', '2', '3'],
+    ['4', '5', '6'],
+    ['7', '8', '9'],
+    ['*', '0', '#'],
+  ];
 
   return (
     <View style={styles.container}>
@@ -101,11 +119,20 @@ export function CallScreen() {
             disabled={callState !== 'connected'}
           >
             {isMuted ? (
-              <MicOff size={28} color="#FFFFFF" />
+              <MicOff size={24} color="#FFFFFF" />
             ) : (
-              <Mic size={28} color="#FFFFFF" />
+              <Mic size={24} color="#FFFFFF" />
             )}
             <Text style={[styles.controlLabel, isMuted && styles.controlLabelActive]}>Mute</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.controlButton, showDialpad && styles.controlButtonActive]}
+            onPress={() => setShowDialpad(!showDialpad)}
+            disabled={callState !== 'connected'}
+          >
+            <Grid3x3 size={24} color="#FFFFFF" />
+            <Text style={[styles.controlLabel, showDialpad && styles.controlLabelActive]}>Keypad</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -114,13 +141,32 @@ export function CallScreen() {
             disabled={callState !== 'connected'}
           >
             {isSpeaker ? (
-              <Volume2 size={28} color="#FFFFFF" />
+              <Volume2 size={24} color="#FFFFFF" />
             ) : (
-              <VolumeX size={28} color="#FFFFFF" />
+              <VolumeX size={24} color="#FFFFFF" />
             )}
             <Text style={[styles.controlLabel, isSpeaker && styles.controlLabelActive]}>Speaker</Text>
           </TouchableOpacity>
         </View>
+
+        {showDialpad && callState === 'connected' && (
+          <View style={styles.dialpad}>
+            {dialpadButtons.map((row, rowIndex) => (
+              <View key={rowIndex} style={styles.dialpadRow}>
+                {row.map((digit) => (
+                  <TouchableOpacity
+                    key={digit}
+                    style={styles.dialpadButton}
+                    onPress={() => handleDigitPress(digit)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.dialpadDigit}>{digit}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ))}
+          </View>
+        )}
 
         <TouchableOpacity style={styles.hangupButton} onPress={handleHangup}>
           <PhoneOff size={32} color="#FFFFFF" />
@@ -189,23 +235,24 @@ const styles = StyleSheet.create({
   },
   controlRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     marginBottom: 40,
+    paddingHorizontal: 20,
   },
   controlButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: '#1C1C1E',
   },
   controlButtonActive: {
     backgroundColor: '#0A84FF',
   },
   controlLabel: {
-    marginTop: 8,
-    fontSize: 12,
+    marginTop: 6,
+    fontSize: 11,
     color: '#8E8E93',
     fontWeight: '400',
   },
@@ -220,5 +267,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
+  },
+  dialpad: {
+    marginBottom: 30,
+  },
+  dialpadRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 16,
+  },
+  dialpadButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#2C2C2E',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dialpadDigit: {
+    fontSize: 32,
+    fontWeight: '300',
+    color: '#FFFFFF',
   },
 });

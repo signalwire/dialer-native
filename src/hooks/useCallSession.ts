@@ -182,6 +182,20 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
     setIsSpeaker(newSpeakerState);
   }, [isSpeaker]);
 
+  const sendDigits = useCallback((digits: string) => {
+    if (!callSessionRef.current || callStateRef.current !== 'connected') {
+      console.warn('[CALL] Cannot send digits - call not connected');
+      return;
+    }
+
+    try {
+      console.log('[CALL] Sending DTMF digits:', digits);
+      callSessionRef.current.sendDigits(digits);
+    } catch (error) {
+      console.error('[CALL] Error sending digits:', error);
+    }
+  }, []);
+
   useEffect(() => {
     return () => {
       cleanup();
@@ -197,5 +211,6 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
     hangup,
     toggleMute,
     toggleSpeaker,
+    sendDigits,
   };
 }
