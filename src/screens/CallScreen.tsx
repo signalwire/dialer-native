@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Phone, PhoneOff, Volume2, VolumeX, Mic, MicOff } from 'lucide-react-native';
+import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
@@ -28,13 +28,18 @@ export function CallScreen() {
   } = useCallSession({
     phoneNumber: phoneNumber || '+9779845862777',
     onCallEnded: () => {
-      navigation.goBack();
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      } else {
+        navigation.replace('Dialer');
+      }
     },
   });
 
   useEffect(() => {
     startCall();
-  }, [startCall]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount - startCall has internal guards
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -100,7 +105,7 @@ export function CallScreen() {
             ) : (
               <Mic size={28} color="#FFFFFF" />
             )}
-            <Text style={styles.controlLabel}>Mute</Text>
+            <Text style={[styles.controlLabel, isMuted && styles.controlLabelActive]}>Mute</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -113,7 +118,7 @@ export function CallScreen() {
             ) : (
               <VolumeX size={28} color="#FFFFFF" />
             )}
-            <Text style={styles.controlLabel}>Speaker</Text>
+            <Text style={[styles.controlLabel, isSpeaker && styles.controlLabelActive]}>Speaker</Text>
           </TouchableOpacity>
         </View>
 
@@ -203,6 +208,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#8E8E93',
     fontWeight: '400',
+  },
+  controlLabelActive: {
+    color: '#FFFFFF',
   },
   hangupButton: {
     width: 72,
