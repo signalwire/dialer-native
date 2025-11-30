@@ -53,12 +53,11 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
 
     try {
       // Ensure client is initialized
-      if (!client) {
-        await initializeClient();
+      let activeClient = client;
+      if (!activeClient) {
+        activeClient = await initializeClient();
       }
 
-      // Get the client again after initialization
-      const activeClient = client;
       if (!activeClient) {
         throw new Error('Failed to initialize SignalWire client');
       }

@@ -137,17 +137,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   displayContainer: {
-    paddingHorizontal: 32,
+    paddingHorizontal: 20,
     paddingVertical: 40,
     minHeight: 100,
     justifyContent: 'center',
     alignItems: 'center',
   },
   phoneNumber: {
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: '300',
     color: '#FFFFFF',
-    letterSpacing: 2,
+    letterSpacing: 1,
   },
   dialPad: {
     flex: 1,

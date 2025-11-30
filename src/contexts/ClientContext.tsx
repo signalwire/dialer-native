@@ -35,9 +35,17 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
   };
 
   const initializeClient = async () => {
-    // If already initialized or initializing, return
-    if (clientRef.current || isInitializingRef.current) {
-      return;
+    // If already initialized or initializing, return existing client
+    if (clientRef.current) {
+      return clientRef.current;
+    }
+
+    if (isInitializingRef.current) {
+      // Wait for ongoing initialization
+      while (isInitializingRef.current) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      return clientRef.current;
     }
 
     isInitializingRef.current = true;
@@ -51,6 +59,7 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
 
       const client = await SignalWire({ token });
       clientRef.current = client;
+      return client;
     } catch (error) {
       console.error('Failed to initialize SignalWire client:', error);
       throw error;
