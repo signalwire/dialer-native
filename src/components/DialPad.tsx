@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Phone, Delete } from 'lucide-react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Phone, Delete, UserRound } from 'lucide-react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Contacts, { Contact } from 'react-native-contacts';
 import { DialButton } from './DialButton';
+import { ContactPicker } from './ContactPicker';
 import { formatPhoneNumber, getRawPhoneNumber } from '../utils/phoneFormatter';
 
 interface DialPadProps {
@@ -39,6 +41,8 @@ const DIAL_BUTTONS = [
 
 export function DialPad({ onCall }: DialPadProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [showContactPicker, setShowContactPicker] = useState(false);
+  const [contactsList, setContactsList] = useState<Contact[]>([]);
 
   const handleDigitPress = (digit: string) => {
     const raw = getRawPhoneNumber(phoneNumber);
@@ -77,6 +81,64 @@ export function DialPad({ onCall }: DialPadProps) {
     }
   };
 
+  const handleContactPicker = async () => {
+    try {
+      ReactNativeHapticFeedback.trigger('impactLight', hapticOptions);
+
+      // Check current permission
+      const currentPermission = await Contacts.checkPermission();
+
+      let permission = currentPermission;
+
+      // If not authorized, request permission
+      if (currentPermission === 'undefined' || currentPermission === 'denied') {
+        permission = await Contacts.requestPermission();
+      }
+
+      // If still denied, show alert
+      if (permission === 'denied') {
+        Alert.alert(
+          'Permission Required',
+          'Please enable contacts access in Settings to select a contact.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
+      // Permission is granted, get contacts
+      const contacts = await Contacts.getAll();
+
+      // Filter contacts that have phone numbers and sort
+      const contactsWithPhones = contacts
+        .filter((c: Contact) => c.phoneNumbers && c.phoneNumbers.length > 0)
+        .sort((a: Contact, b: Contact) => {
+          const nameA = a.givenName || a.familyName || '';
+          const nameB = b.givenName || b.familyName || '';
+          return nameA.localeCompare(nameB);
+        });
+
+      if (contactsWithPhones.length === 0) {
+        Alert.alert('No Contacts', 'No contacts with phone numbers found.');
+        return;
+      }
+
+      setContactsList(contactsWithPhones);
+      setShowContactPicker(true);
+    } catch (error) {
+      console.log('Contact picker error:', error);
+      Alert.alert('Error', 'Failed to load contacts. Please try again.');
+    }
+  };
+
+  const handleContactSelect = (contact: Contact) => {
+    if (contact.phoneNumbers && contact.phoneNumbers.length > 0) {
+      const firstNumber = contact.phoneNumbers[0].number;
+      const cleaned = firstNumber.replace(/[^\d+]/g, '');
+      setPhoneNumber(formatPhoneNumber(cleaned));
+    }
+    setShowContactPicker(false);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.displayContainer}>
@@ -101,7 +163,13 @@ export function DialPad({ onCall }: DialPadProps) {
         ))}
 
         <View style={styles.actionRow}>
-          <View style={styles.spacer} />
+          <TouchableOpacity
+            style={styles.contactsButton}
+            onPress={handleContactPicker}
+            activeOpacity={0.7}
+          >
+            <UserRound size={28} color="#FFFFFF" />
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.callButton, !phoneNumber && styles.callButtonDisabled]}
@@ -127,6 +195,13 @@ export function DialPad({ onCall }: DialPadProps) {
           )}
         </View>
       </View>
+
+      <ContactPicker
+        visible={showContactPicker}
+        contacts={contactsList}
+        onSelect={handleContactSelect}
+        onClose={() => setShowContactPicker(false)}
+      />
     </View>
   );
 }
@@ -168,6 +243,12 @@ const styles = StyleSheet.create({
   },
   spacer: {
     width: 80,
+  },
+  contactsButton: {
+    width: 80,
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   callButton: {
     width: 72,

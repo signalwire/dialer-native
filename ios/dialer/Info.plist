@@ -50,6 +50,8 @@
 	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>To be able to make calls, you need to enable microphone.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>To select contacts for calling, please allow access to your contacts.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
