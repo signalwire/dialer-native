@@ -7,6 +7,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../types/navigation';
 import { useCallSession } from '../hooks/useCallSession';
+import { useDTMFTones } from '../hooks/useDTMFTones';
 import { formatPhoneNumber } from '../utils/phoneFormatter';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -17,6 +18,8 @@ export function CallScreen() {
   const route = useRoute<CallRouteProp>();
   const { phoneNumber, contactName } = route.params;
   const [showDialpad, setShowDialpad] = useState(false);
+
+  const { playTone } = useDTMFTones();
 
   const {
     callState,
@@ -55,10 +58,16 @@ export function CallScreen() {
   };
 
   const handleDigitPress = (digit: string) => {
+    // Play DTMF tone (respects silent mode)
+    playTone(digit);
+
+    // Haptic feedback
     ReactNativeHapticFeedback.trigger('impactLight', {
       enableVibrateFallback: false,
       ignoreAndroidSystemSettings: false,
     });
+
+    // Send digit to call
     sendDigits(digit);
   };
 

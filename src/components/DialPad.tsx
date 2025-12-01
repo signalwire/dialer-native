@@ -254,12 +254,12 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#34C759',
+    backgroundColor: '#F72B73',
     justifyContent: 'center',
     alignItems: 'center',
   },
   callButtonDisabled: {
-    backgroundColor: '#1C3D29',
+    backgroundColor: '#4A1F2F',
     opacity: 0.5,
   },
   backspaceButton: {
