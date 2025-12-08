@@ -1,7 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useDTMFTones } from '../hooks/useDTMFTones';
 
 interface DialButtonProps {
   digit: string;
@@ -15,13 +14,13 @@ const hapticOptions = {
   ignoreAndroidSystemSettings: false,
 };
 
-export function DialButton({ digit, letters, onPress, onLongPress }: DialButtonProps) {
-  const { playTone } = useDTMFTones();
-
+export function DialButton({
+  digit,
+  letters,
+  onPress,
+  onLongPress,
+}: DialButtonProps) {
   const handlePress = () => {
-    // Play DTMF tone (respects silent mode)
-    playTone(digit);
-
     // Haptic feedback
     ReactNativeHapticFeedback.trigger('impactLight', hapticOptions);
 
