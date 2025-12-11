@@ -1,0 +1,16 @@
+{
+  "name": "signalwire-dialer-backend",
+  "version": "1.0.0",
+  "description": "Backend API for SignalWire Dialer app",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1"
+  }
+}
