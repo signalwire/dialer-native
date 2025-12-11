@@ -2,6 +2,10 @@
 
 A dialer application built with React Native that integrates with SignalWire for making and receiving calls with OAuth authentication.
 
+<p align="center">
+  <img src="./assets/preview.gif" alt="SignalWire Dialer Preview" height="450px" />
+</p>
+
 - OAuth2 authentication via SignalWire Subscriber API
 - Make and receive calls using SignalWire
 
