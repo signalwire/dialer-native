@@ -46,45 +46,6 @@ We are using native modules unsupported by Expo.
 - For iOS development, XCode must be installed and configured as per the guide.
 - For Android development, Android Studio must be installed with the correct SDK version.
 
-## Backend Setup
-
-The signup feature requires a backend server to create SignalWire subscribers.
-
-1. Navigate to the backend directory:
-
-```bash
-cd backend
-```
-
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Create a `.env` file:
-
-```bash
-cp .env.example .env
-```
-
-4. Configure your SignalWire credentials in `.env`:
-
-```
-PORT=3000
-SIGNALWIRE_SPACE_NAME=your-space-name
-SIGNALWIRE_PROJECT_ID=your-project-id
-SIGNALWIRE_API_TOKEN=your-api-token
-```
-
-5. Start the backend server:
-
-```bash
-npm start
-```
-
-The server will run on `http://localhost:3000`.
-
 ### Getting Your SignalWire Credentials
 
 1. Log in to your [SignalWire Dashboard](https://signalwire.com/)
@@ -126,73 +87,52 @@ const AUTH_CONFIG = {
 
 ### Installation
 
-1. Clone the repository:
+First clone the repo:
 
 ```bash
-git clone https://github.com/signalwire/dialer-native
+git clone https://github.com/signalwire/dialer-native.git
 cd dialer-native
 ```
 
-2. Navigate to the React Native directory:
+Then, install the dependencies and run the app:
 
 ```bash
 cd react-native
-```
-
-3. Install dependencies:
-
-```bash
 npm install
-```
 
-### iOS Setup
-
-1. Install CocoaPods dependencies:
-
-```bash
+# for iOS 
 cd ios
 pod install
 cd ..
-```
 
-2. Run the app:
-
-```bash
 npm run ios
-```
 
-### Android Setup
-
-1. Make sure you have an Android emulator running or a device connected
-
-2. Run the app:
-
-```bash
+##  for Android
 npm run android
 ```
 
-## Development
+## Backend Setup
 
-### Running the Backend
+The signup feature requires a backend server to create SignalWire subscribers.
 
-From the `backend` directory:
+```bash
+cd backend
+npm install
+```
+
+Create a `.env` file with SignalWire credentials:
+
+```
+PORT=3000
+SIGNALWIRE_SPACE_NAME=your-space-name
+SIGNALWIRE_PROJECT_ID=your-project-id
+SIGNALWIRE_API_TOKEN=your-api-token
+```
+
+5. Start the backend server:
 
 ```bash
 npm start
 ```
 
-### Running the React Native App
-
-From the `react-native` directory:
-
-**iOS:**
-
-```bash
-npm run ios
-```
-
-**Android:**
-
-```bash
-npm run android
-```
+The server will run on `http://localhost:3000`.
