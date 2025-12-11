@@ -12,7 +12,7 @@ Before you begin, ensure you have the following installed:
 - Node.js (>= 20)
 - React Native development environment set up for your platform
 - For detailed environment setup, follow the official React Native documentation:
-  - [React Native Environment Setup](https://reactnative.dev/docs/environment-setup)
+  - [React Native Environment Setup](https://reactnative.dev/docs/set-up-your-environment)
 
 We are using native modules unsupported by Expo.
 
@@ -63,10 +63,12 @@ npm install
 
 3. Update your SignalWire credentials in `src/services/auth.ts` (see Configuration section above)
 
-4. (Optional) Update backend URL in `src/services/auth.ts`:
+4. Update backend URL in `src/services/auth.ts`:
+
    - For iOS simulator: `http://localhost:3000/signup` (default)
    - For Android emulator: `http://10.0.2.2:3000/signup`
-     Update to actual backend signup URL before publication.
+
+   Update to actual backend signup URL before publication.
 
 ### iOS Setup
 
