@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Image,
+} from 'react-native';
 import { Phone, Lock } from 'lucide-react-native';
 import { login } from '../services/auth';
 import { useNavigation } from '@react-navigation/native';
@@ -38,7 +45,8 @@ export function WelcomeScreen() {
 
         <Text style={styles.title}>SignalWire Dialer</Text>
         <Text style={styles.subtitle}>
-          Make secure calls with SignalWire's enterprise-grade communication platform
+          Make secure calls with SignalWire's enterprise-grade communication
+          platform
         </Text>
 
         <TouchableOpacity
@@ -55,6 +63,18 @@ export function WelcomeScreen() {
               <Text style={styles.loginButtonText}>Login with SignalWire</Text>
             </>
           )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.signupLink}
+          onPress={() => navigation.navigate('SignUp')}
+          disabled={loading}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.signupLinkText}>
+            Not a Subscriber yet?{' '}
+            <Text style={styles.signupLinkBold}>Sign Up</Text>
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -118,6 +138,19 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  signupLink: {
+    marginTop: 24,
+    paddingVertical: 8,
+  },
+  signupLinkText: {
+    color: '#8E8E93',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  signupLinkBold: {
+    color: '#F72B73',
     fontWeight: '600',
   },
 });

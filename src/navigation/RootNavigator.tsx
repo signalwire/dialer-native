@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { WelcomeScreen } from '../screens/WelcomeScreen';
+import { SignUpScreen } from '../screens/SignUpScreen';
 import { DialerScreen } from '../screens/DialerScreen';
 import { CallScreen } from '../screens/CallScreen';
 import { isAuthenticated } from '../services/auth';
@@ -41,6 +42,7 @@ export function RootNavigator() {
         }}
       >
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
+        <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="Dialer" component={DialerScreen} />
         <Stack.Screen
           name="Call"

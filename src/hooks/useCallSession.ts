@@ -3,14 +3,22 @@ import InCallManager from 'react-native-incall-manager';
 import { DeviceEventEmitter } from 'react-native';
 import { useClient } from '../contexts/ClientContext';
 
-export type CallState = 'idle' | 'connecting' | 'connected' | 'hanging_up' | 'ended';
+export type CallState =
+  | 'idle'
+  | 'connecting'
+  | 'connected'
+  | 'hanging_up'
+  | 'ended';
 
 interface UseCallSessionParams {
   phoneNumber: string;
   onCallEnded?: () => void;
 }
 
-export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParams) {
+export function useCallSession({
+  phoneNumber,
+  onCallEnded,
+}: UseCallSessionParams) {
   const { client, initializeClient } = useClient();
 
   const [callState, setCallState] = useState<CallState>('idle');
@@ -21,7 +29,9 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
   const callSessionRef = useRef<any>(null);
   const isInitializingRef = useRef(false);
   const hasInitializedRef = useRef(false);
-  const durationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const durationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
   const callStateRef = useRef<CallState>('idle');
 
   // Helper to update both state and ref atomically
@@ -60,7 +70,10 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
 
     // Additional check: if we're not in idle state, don't start
     if (callStateRef.current !== 'idle') {
-      console.log('[CALL] Call already in progress, state:', callStateRef.current);
+      console.log(
+        '[CALL] Call already in progress, state:',
+        callStateRef.current,
+      );
       return;
     }
 
@@ -95,7 +108,7 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
 
         // Start call duration timer
         durationIntervalRef.current = setInterval(() => {
-          setCallDuration((prev) => prev + 1);
+          setCallDuration(prev => prev + 1);
         }, 1000);
 
         // Listen for audio device changes (for debugging)
@@ -103,14 +116,14 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
           'onAudioDeviceChanged',
           (data: any) => {
             console.log('[AUDIO] Device changed:', data);
-          }
+          },
         );
 
         const onWiredHeadset = DeviceEventEmitter.addListener(
           'WiredHeadset',
           (data: any) => {
             console.log('[AUDIO] Wired headset event:', data);
-          }
+          },
         );
 
         // Cleanup listeners when call ends
@@ -148,7 +161,14 @@ export function useCallSession({ phoneNumber, onCallEnded }: UseCallSessionParam
     } finally {
       isInitializingRef.current = false;
     }
-  }, [phoneNumber, cleanup, onCallEnded, client, initializeClient, updateCallState]);
+  }, [
+    phoneNumber,
+    cleanup,
+    onCallEnded,
+    client,
+    initializeClient,
+    updateCallState,
+  ]);
 
   const hangup = useCallback(() => {
     if (callSessionRef.current) {

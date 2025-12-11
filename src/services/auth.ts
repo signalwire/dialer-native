@@ -4,7 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const AUTH_CONFIG = {
   issuer: 'https://id.fabric.signalwire.com/',
   serviceConfiguration: {
-    authorizationEndpoint: 'https://id.fabric.signalwire.com/login/oauth/authorize',
+    authorizationEndpoint:
+      'https://id.fabric.signalwire.com/login/oauth/authorize',
     tokenEndpoint: 'https://id.fabric.signalwire.com/oauth/token',
   },
   clientId: 'lMcMQXRiDbuzI49cSfAkGZ4aoObh99LEu-1HudX5Di4',
@@ -12,6 +13,8 @@ const AUTH_CONFIG = {
   clientAuthMethod: 'post' as const,
   scopes: [],
 };
+
+const SIGNUP_API_URL = 'http://localhost:3000/signup';
 
 const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -44,7 +47,10 @@ async function saveAuthResult(result: AuthorizeResult) {
     console.log('[AUTH] No refresh token to save');
   }
   if (result.accessTokenExpirationDate) {
-    await AsyncStorage.setItem(TOKEN_EXPIRY_KEY, result.accessTokenExpirationDate);
+    await AsyncStorage.setItem(
+      TOKEN_EXPIRY_KEY,
+      result.accessTokenExpirationDate,
+    );
     console.log('[AUTH] Saved expiry:', result.accessTokenExpirationDate);
   } else {
     console.log('[AUTH] No expiry date to save');
@@ -102,5 +108,52 @@ export async function isAuthenticated(): Promise<boolean> {
 
 export async function logout() {
   console.log('[AUTH] Logging out, clearing all tokens');
-  await AsyncStorage.multiRemove([TOKEN_KEY, REFRESH_TOKEN_KEY, TOKEN_EXPIRY_KEY]);
+  await AsyncStorage.multiRemove([
+    TOKEN_KEY,
+    REFRESH_TOKEN_KEY,
+    TOKEN_EXPIRY_KEY,
+  ]);
+}
+
+export interface SignUpData {
+  firstName: string;
+  lastName?: string;
+  email: string;
+  password: string;
+}
+
+export async function signup(data: SignUpData): Promise<void> {
+  try {
+    console.log('[AUTH] Signing up user:', data.email);
+
+    const response = await fetch(SIGNUP_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        first_name: data.firstName,
+        last_name: data.lastName || '',
+        email: data.email,
+        password: data.password,
+      }),
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      if (response.status === 422 && responseData.errors) {
+        const errorMessages = responseData.errors
+          .map((err: any) => err.message)
+          .join(', ');
+        throw new Error(errorMessages);
+      }
+      throw new Error(responseData.error || 'Signup failed');
+    }
+
+    console.log('[AUTH] Signup successful:', responseData.id);
+  } catch (error) {
+    console.error('[AUTH] Signup error:', error);
+    throw error;
+  }
 }
